@@ -24,4 +24,4 @@ Framework preset: `None`. Build command: vazio. Build output directory: `public`
 
 Nome: Matheus da cunha petryk
 RA: 2026109584
-URL: https://
+URL: https://2bim-avalia1-ef7.pages.dev
