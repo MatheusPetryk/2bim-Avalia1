@@ -18,7 +18,6 @@ const statusLogin = document.getElementById("status-login");
 function aoLogar(resposta) {
   idToken = resposta.credential;
   statusLogin.textContent = "Login realizado com Google.";
-  console.log(resposta.credential); // temporário: remova depois do teste
 }
 
 window.addEventListener("load", () => {
