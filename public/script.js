@@ -1,8 +1,3 @@
-// script.js
-// Versao inicial: todo o trabalho acontece no navegador.
-// A tarefa consiste em levar gerarDesenho para o servidor (Pages Functions)
-// e fazer esta pagina apenas enviar o numero e exibir a resposta.
-
 import { gerarDesenho, numeroValido } from "./desenho.js";
 
 const formulario = document.getElementById("formulario");
@@ -14,6 +9,30 @@ const botaoBaixar = document.getElementById("baixar");
 
 let svgAtual = "";
 
+// ---- Login com Google (Google Identity Services) ----
+const GOOGLE_CLIENT_ID = "COLE_AQUI_SEU_ID.apps.googleusercontent.com";
+
+let idToken = null;
+const statusLogin = document.getElementById("status-login");
+
+function aoLogar(resposta) {
+  idToken = resposta.credential;
+  statusLogin.textContent = "Login realizado com Google.";
+  console.log(resposta.credential); // temporário: remova depois do teste
+}
+
+window.addEventListener("load", () => {
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: aoLogar,
+  });
+  google.accounts.id.renderButton(document.getElementById("botao-google"), {
+    theme: "outline",
+    size: "large",
+  });
+});
+
+// ---- Formulário (ainda no navegador) ----
 formulario.addEventListener("submit", (evento) => {
   evento.preventDefault();
   mensagem.textContent = "";
