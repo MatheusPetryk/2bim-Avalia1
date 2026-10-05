@@ -1,23 +1,23 @@
-import { gerarDesenho, numeroValido } from "./desenho.js";
+// script.js
+// A página só envia o número e o token. O desenho é gerado no servidor.
 
 const formulario = document.getElementById("formulario");
 const campoNumero = document.getElementById("numero");
-const campoEmail = document.getElementById("email");
 const area = document.getElementById("desenho");
 const mensagem = document.getElementById("mensagem");
 const botaoBaixar = document.getElementById("baixar");
+const statusLogin = document.getElementById("status-login");
 
 let svgAtual = "";
-
-// ---- Login com Google (Google Identity Services) ----
-const GOOGLE_CLIENT_ID = "497944650823-6fc28dae0ct1isfpbnhe55t1t841qtgt.apps.googleusercontent.com";
-
 let idToken = null;
-const statusLogin = document.getElementById("status-login");
+
+// ---- Login com Google ----
+const GOOGLE_CLIENT_ID = "497944650823-6fc28dae0ct1isfpbnhe55t1t841qtgt.apps.googleusercontent.com";
 
 function aoLogar(resposta) {
   idToken = resposta.credential;
   statusLogin.textContent = "Login realizado com Google.";
+  mensagem.textContent = "";
 }
 
 window.addEventListener("load", () => {
@@ -31,26 +31,49 @@ window.addEventListener("load", () => {
   });
 });
 
-// ---- Formulário (ainda no navegador) ----
-formulario.addEventListener("submit", (evento) => {
+// ---- Formulário ----
+formulario.addEventListener("submit", async (evento) => {
   evento.preventDefault();
   mensagem.textContent = "";
 
+  if (!idToken) {
+    mensagem.textContent = "Faça login com o Google antes de desenhar.";
+    return;
+  }
+
   const numero = Number(campoNumero.value);
-  const email = campoEmail.value.trim();
 
-  if (!numeroValido(numero)) {
-    mensagem.textContent = "Digite um inteiro entre 1 e 100.";
-    return;
-  }
-  if (email === "") {
-    mensagem.textContent = "Informe um e-mail.";
-    return;
-  }
+  try {
+    const resposta = await fetch("/api/desenho", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + idToken,
+      },
+      body: JSON.stringify({ numero }),
+    });
 
-  svgAtual = gerarDesenho(numero, email);
-  area.innerHTML = svgAtual;
-  botaoBaixar.hidden = false;
+    if (resposta.status === 400) {
+      mensagem.textContent = "Erro 400: digite um inteiro entre 1 e 100.";
+      return;
+    }
+    if (resposta.status === 401) {
+      idToken = null;
+      statusLogin.textContent = "Sessão inválida ou expirada.";
+      mensagem.textContent = "Erro 401: faça login com o Google novamente.";
+      return;
+    }
+    if (!resposta.ok) {
+      mensagem.textContent = "Erro inesperado (" + resposta.status + ").";
+      return;
+    }
+
+    svgAtual = await resposta.text();
+    area.innerHTML = svgAtual;
+    botaoBaixar.hidden = false;
+  } catch {
+    mensagem.textContent = "Falha de rede ao chamar o servidor.";
+  }
 });
 
 botaoBaixar.addEventListener("click", () => {
