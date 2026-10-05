@@ -10,7 +10,7 @@ const botaoBaixar = document.getElementById("baixar");
 let svgAtual = "";
 
 // ---- Login com Google (Google Identity Services) ----
-const GOOGLE_CLIENT_ID = "COLE_AQUI_SEU_ID.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "497944650823-6fc28dae0ct1isfpbnhe55t1t841qtgt.apps.googleusercontent.com";
 
 let idToken = null;
 const statusLogin = document.getElementById("status-login");
